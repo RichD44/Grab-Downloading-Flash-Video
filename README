@@ -18,56 +18,53 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------
 
-Wait for the Flash video currently playing to finish downloading, then copy it.
-Usage: grabdlvid.sh [copytodir] [interrupt-key] [interrupt-file]
- where:
-	 copytodir - directory into which downloaded Flash videos will be copied.
-					 Default is COPYTODIR configured below.
-	 interrupt-key - name of key used to interrupt the script.
-					 Default is INTERRUPTKEY configured below.
-	 interrupt-file - path of file whose contents is set to "1" when
-					 interrupt-key is pressed. See the description of INTERRUPTFILE
-					 below for how to write the required one-line script.
-					 Default is INTERRUPTFILE configured below.
+Wait for the Flash video currently playing to finish downloading, then save it.
+Designed for the Linux GNOME desktop.
 
 Important: Not all websites serving Flash videos use the same technique.
  In particular, for YouTube videos and for sites where the "Video URL" is
  explicitly specified, you may have better success using a download utility
  such as 'youtube-dl'.
 
-Designed for the Linux GNOME desktop and Firefox browser. Modifications may
- be needed for other environments. Tested on Fedora FC14 and Firefox 3.6.
-
 Requirements:
  'zenity' installed (part of the GNOME desktop). To check, do this from terminal:
-	 # zenity --version
- Firefox browser with Flash 10.2 plugin installed (older versions use a
-	 different downloading technique). To check your version:
-	 Type "about:plugins" in your Firefox address bar. Then scroll down to
-	 find the Shockwave Flash Version. It should be something like "10.2 r159"
+    # zenity --version
+ Firefox or Chrome browser with Flash plugin. To check your version:
+    Type "about:plugins" in the browser address bar. Then scroll down to
+    find the Shockwave Flash Version. It should be something like "10.2 r159"
  'mplayer' installed - used to find the final size of the video that's
-	 currently being downloaded. To check, do this from terminal:
-	 # mplayer --help
-	 grabdlvid will work if mplayer is not installed but the progress bar
-	 won't work because the final file size will be unknown.
+    currently being downloaded. To check, do this from terminal:
+    # mplayer --help
 
- Designed to be called either of two ways:
-	 1. Via a GNOME Custom Keyboard shortcut (e.g. F5). No parameters are needed
-		 but you must set up the default params in the Configuration Section below.
-		 To configure a specific key, go to System/Preferences/Keyboard Shortcuts.
-	 2. From a terminal window. This is less convenient but you don't have to
-		 define a GNOME Custom Keyboard shortcut.
- Notes:
-	 1. Be sure this script is executable (e.g. chmod 744 ~/bin/grabdlvid.sh)
-	 2. Be sure to call this script DURING video playback, at least 5
-		 seconds before it's done playing. 
-	 3. This script tries to find videos that are being downloaded using either
-		 of two slightly different Flash 10.2 techniques: 
-			 a) Deleted but still open temp file:
-				 lsof | awk '/npviewer/&&/Flash/&&/deleted/'
-			 b) Firefox cache:
-				 lsof | awk '$1=="firefox" && $4!="mem" && $5=="REG" && /Cache/&& !/_CACHE/'
-			 If neither finds the file, try download utility such as youtube-dl.
-	 4. The Firefox cache seems to impose a size limit on "larger" files, causing
-	    this script to be unsuitable for some downloads. So it's not a "one size fits all"
-		 solution. Contributions or suggestions about fixing this problem are welcome.
+Setup:
+ 1. Make this script executable (e.g. chmod 744 ~/bin/grabdlvid.sh)
+ 2. Configure the script by editing the Configuration Section.
+ 3. If you want to call grabdlvid.sh via a GNOME custom keyboard shortcut
+    (recommended), set it up at System/Preferences/Keyboard Shortcuts:
+       Click 'Add' then:
+          Name: Grab Downloading Video
+          Command: grabdlvid.sh
+ 4. If you also want a 'Save Now' option via a (different) GNOME custom  
+    keyboard shortcut (recommended), click 'Add' again, then:
+       Name: Save Downloading Video Now
+       Command: grabdlvid.sh savenow
+
+Usage:
+ This script must be called DURING video playback. If you set up a GNOME
+ custom keyboard shortcut, simply press that key. Otherwise from the terminal:
+    grabdlvid.sh
+
+How it works:
+ This script tries to find videos that are being downloaded using either
+ of two different Flash techniques: 
+    a) Temp file. Prior to Flash 10.2, it was easy to find the file yourself
+       in the /tmp file but starting with version 10.2, this script is a lot
+       more useful because the file is deleted but internally still open.
+    b) Browser cache - backup method. Less reliable because there may be a
+       size limit that this script cannot overcome.
+ If neither finds the file, try a download utility such as youtube-dl.
+
+Tested on Fedora 14 with:
+    Firefox 3.6.17 with Shockwave Flash 10.2 r159
+    Google Chrome 7.0.517.44 with Shockwave Flash 10.1 r103
+    Google Chrome 11.0.696.77 with Shockwave Flash 10.3 r181
